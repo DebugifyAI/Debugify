@@ -80,9 +80,9 @@ globs: *
     - Review the Dockerfile to identify which command is failing and ensure that it is installed or available in the Docker image.
     - Ensure the correct package.json is being copied, not the root one.
 - If encountering `Error: Cannot find module '/app/server.js'` in the container logs:
-  - Ensure the `server.js` file is being correctly copied from the builder stage to the runtime stage in the Dockerfile. If using `index.js` instead, ensure the correct file is being copied.
+  - Ensure the `server.js` file (or `index.js` if that's what you're using) is being correctly copied from the builder stage to the runtime stage in the Dockerfile.
   - Double-check the path used in the `CMD` instruction in the Dockerfile to ensure it matches the location where `server.js` or `index.js` is copied.
-  - Verify that the `server.js` or `index.js` file exists in the frontend directory.
+  - Verify that the `server.js` or `index.js` file exists in the correct directory.
   - If copying `server.js` or `index.js` from the builder stage is problematic, try copying it directly from the source.
 - When debugging Dockerfiles, remember that console logs from `RUN` commands are outputted to the Docker build logs in your terminal.
 - When debugging Dockerfiles, add `echo` statements and `ls -la` commands to inspect the file system at different stages.
@@ -90,3 +90,6 @@ globs: *
 - When debugging Dockerfiles, add debug steps in the builder stage to check file existence and permissions.
 - When debugging Dockerfiles, add debug steps in the runtime stage to check file existence and permissions.
 - When debugging Dockerfiles, if facing issues with debug output, force a rebuild without cache using `docker build --no-cache -f services/frontend/Dockerfile .`.
+- When troubleshooting Docker build issues related to file paths, ensure the static file paths in server-side code (e.g., `services/server/index.js`) match the actual directory structure in the Docker container. Specifically, check paths used in `express.static()` and `res.sendFile()` calls. Common issues include incorrect relative paths (e.g., using `../frontend/dist` when the files are located in `./dist`).
+- When debugging Dockerfiles and encountering a "module not found" error for `index.js` or `server.js`, verify that the correct file is specified in the `CMD` instruction. If the file is named `index.js`, the `CMD` should be `CMD ["node", "index.js"]`.
+- When pushing branches to remote repositories and encountering errors like "dockerBuild cannot be resolved to branch", ensure the branch exists locally (`git branch -a`), create it if necessary (`git checkout -b dockerBuild`), add and commit changes (`git add .`, `git commit -m "message"`), and push to the correct remote (`git push origin dockerBuild`). Use `git push -u origin dockerBuild` to set the upstream for the branch.

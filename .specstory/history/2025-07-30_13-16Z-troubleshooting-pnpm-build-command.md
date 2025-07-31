@@ -2052,3 +2052,79 @@ Try adding the debug commands to see what files are actually in the container wh
 
 ---
 
+_**User**_
+
+I'm trying to push the dockerBuild commits to the remoto repo.
+
+---
+
+_**Assistant**_
+
+The error "dockerBuild cannot be resolved to branch" suggests that you're trying to push a branch that doesn't exist or isn't properly set up. Here are the potential fixes:
+
+## Potential Fixes:
+
+### 1. **Check if the branch exists locally**
+```bash
+git branch -a
+```
+
+### 2. **Create the branch if it doesn't exist**
+```bash
+git checkout -b dockerBuild
+```
+
+### 3. **Add and commit your changes first**
+```bash
+git add .
+git commit -m "Fix Docker build issues"
+```
+
+### 4. **Push to the correct remote**
+```bash
+git push origin dockerBuild
+```
+
+### 5. **Check your current branch**
+```bash
+git branch
+git status
+```
+
+### 6. **Set upstream for the branch**
+```bash
+git push -u origin dockerBuild
+```
+
+### 7. **If you're on the wrong branch**
+```bash
+# Switch to the branch you want to push
+git checkout dockerBuild
+
+# Or create it from current changes
+git checkout -b dockerBuild
+git add .
+git commit -m "Docker build fixes"
+git push -u origin dockerBuild
+```
+
+### 8. **Check remote configuration**
+```bash
+git remote -v
+```
+
+### 9. **Force push if needed (be careful)**
+```bash
+git push --force-with-lease origin dockerBuild
+```
+
+**The most likely issue is that you're trying to push a branch that doesn't exist locally or hasn't been created yet. Try creating the branch first with `git checkout -b dockerBuild` and then pushing it.**
+
+The typical workflow would be:
+1. `git checkout -b dockerBuild`
+2. `git add .`
+3. `git commit -m "Docker fixes"`
+4. `git push -u origin dockerBuild`
+
+---
+
