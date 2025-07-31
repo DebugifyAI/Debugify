@@ -1,0 +1,32 @@
+{
+  "name": "debugify",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A modern full stack web platform that leverages AI and E2E tools to streamline the debugging process",
+  "workspaces": [
+    "services/*"
+  ],
+  "scripts": {
+    "dev": "pnpm run --parallel dev",
+    "build": "pnpm run --recursive build",
+    "test": "pnpm run --recursive test",
+    "lint": "pnpm run --recursive lint",
+    "clean": "pnpm run --recursive clean",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "db:migrate": "pnpm --filter server db:migrate",
+    "db:seed": "pnpm --filter server db:seed",
+    "db:reset": "pnpm --filter server db:reset"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+} 
