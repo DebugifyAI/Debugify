@@ -1,0 +1,95 @@
+---
+description: AI rules derived by SpecStory from the project AI interaction history
+globs: *
+---
+
+## PROJECT RULES & CODING STANDARDS
+
+## WORKFLOW & RELEASE RULES
+
+## TECH STACK
+
+## PROJECT DOCUMENTATION & CONTEXT SYSTEM
+
+## DEBUGGING
+
+- When using `pnpm --filter` to run a script in a specific package, always ensure the filter matches the exact `name` field in the package's `package.json` file. Avoid assuming scoped package names (e.g., `@debugify/frontend`) unless explicitly defined in the `package.json`. The filter should match the `name` field.
+- When encountering issues with `pnpm` commands, verify that the command is compatible with the shell being used (e.g., PowerShell vs. bash). PowerShell might require different syntax for operators like `&&`.
+- When troubleshooting `pnpm` commands, especially `pnpm --filter`, double-check the package name in the `package.json` to ensure it matches the filter being used.
+- When encountering issues with `pnpm --filter`, also consider these alternative solutions:
+   - Run from the frontend directory directly:
+     ```bash
+     cd services/frontend
+     pnpm run build
+     ```
+   - Use the workspace script from the root:
+     ```bash
+     pnpm run build
+     ```
+     (This will build all packages recursively)
+   - Update the package name in `services/frontend/package.json` to `"@debugify/frontend"` if you want to use that naming convention.
+- When troubleshooting Docker build issues related to `pnpm`, ensure the `pnpm-lock.yaml` file is included in the Docker context. This file is essential for `--frozen-lockfile` to work correctly.
+- When using `pnpm` in Dockerfiles, ensure the file copying order is correct: workspace config files (e.g., `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`) should be copied first, followed by individual service `package.json` files, before running `pnpm install`.
+- When building Docker images, the builder stage should properly copy source files and workspace configuration to ensure the build process has all necessary files.
+- When creating Dockerfiles, the runtime stage should install production dependencies only, using `pnpm install --prod --frozen-lockfile`. Avoid copying the entire `node_modules` directory from the builder stage to reduce image size and potential conflicts.
+- If encountering the `ERR_PNPM_BROKEN_LOCKFILE` error during Docker builds, consider the following potential fixes:
+    - Regenerate the lockfile by deleting `pnpm-lock.yaml` and running `pnpm install`.
+    - Use a different or specific `pnpm` version by updating the Dockerfile with `RUN corepack prepare pnpm@<version> --activate`.
+    - As a temporary workaround, remove the `--frozen-lockfile` flag from the Dockerfile's `pnpm install` command.
+    - Try copying `pnpm-lock.yaml` separately in the Dockerfile before other configuration files.
+    - Consider a simpler Docker build approach by focusing on individual service directories instead of the entire workspace.
+    - Check the `pnpm-lock.yaml` file for syntax errors or format incompatibilities.
+    - As a last resort and temporary fix, switch to `npm` instead of `pnpm` in the Dockerfile.
+- If encountering the `ERR_PNPM_INVALID_WORKSPACE_CONFIGURATION packages field missing or empty` error during Docker builds, consider the following potential fixes:
+    - Check if `pnpm-workspace.yaml` is being copied correctly in the Dockerfile with the line `COPY pnpm-workspace.yaml ./`.
+    - Consider using the `workspaces` field in the root `package.json` instead of `pnpm-workspace.yaml`:
+        ```json
+        {
+          "workspaces": ["services/*"]
+        }
+        ```
+    - Ensure the workspace configuration file is copied before any pnpm commands in the Dockerfile.
+    - Consider a simpler Docker build approach without using a workspace.
+    - Check the `pnpm-workspace.yaml` file for correct syntax:
+        ```yaml
+        packages:
+          - 'services/*'
+        ```
+    - Try using absolute paths in the workspace configuration file.
+    - Add a debug step in the Dockerfile to list files and check the workspace setup:
+        ```dockerfile
+        RUN ls -la
+        RUN cat pnpm-workspace.yaml
+        ```
+- If encountering issues where Docker is trying to copy `node_modules` from a path that doesn't exist, double check the copy paths in the builder stage:
+    - The `COPY` commands should match the actual directory structure.
+    - When using `npm`, consider using a simplified build process without complex multi-stage setup with `node_modules` copying.
+    - If using `npm install` in each stage, you may not need to copy `node_modules`.
+    - For simplicity, consider using a single-stage build.
+    - Always double check the actual directory structure to ensure the copy commands match where the files actually are.
+    - Instead of copying `node_modules`, install production dependencies in the runtime stage.
+- When debugging Dockerfiles, if encountering a "not found" error:
+  - Verify the COPY commands syntax. Ensure they correctly specify the source and destination paths.
+  - If switching from pnpm to npm, remove any pnpm-related files and commands from the Dockerfile.
+  - When switching from pnpm to npm, update the build command in the Dockerfile to use `npm run build`.
+  - If using npm, avoid complex node_modules copying strategies.
+  - Ensure the runtime stage installs production dependencies using `npm install --production`.
+  - Consider using a simpler Dockerfile structure, especially when building a single service.
+  - Ensure that you're not mixing pnpm and npm commands, as they handle node_modules differently.
+- If encountering the error `exit code: 127` in a Docker build, this typically means "command not found". This suggests that a command is failing because the necessary executable isn't available. Possible fixes:
+    - Review the Dockerfile to identify which command is failing and ensure that it is installed or available in the Docker image.
+    - Ensure the correct package.json is being copied, not the root one.
+- If encountering `Error: Cannot find module '/app/server.js'` in the container logs:
+  - Ensure the `server.js` file (or `index.js` if that's what you're using) is being correctly copied from the builder stage to the runtime stage in the Dockerfile.
+  - Double-check the path used in the `CMD` instruction in the Dockerfile to ensure it matches the location where `server.js` or `index.js` is copied.
+  - Verify that the `server.js` or `index.js` file exists in the correct directory.
+  - If copying `server.js` or `index.js` from the builder stage is problematic, try copying it directly from the source.
+- When debugging Dockerfiles, remember that console logs from `RUN` commands are outputted to the Docker build logs in your terminal.
+- When debugging Dockerfiles, add `echo` statements and `ls -la` commands to inspect the file system at different stages.
+- When debugging Dockerfiles, the debug output from the builder stage won't show up when the runtime stage fails. Debug commands must be added to the stage where the error is occurring.
+- When debugging Dockerfiles, add debug steps in the builder stage to check file existence and permissions.
+- When debugging Dockerfiles, add debug steps in the runtime stage to check file existence and permissions.
+- When debugging Dockerfiles, if facing issues with debug output, force a rebuild without cache using `docker build --no-cache -f services/frontend/Dockerfile .`.
+- When troubleshooting Docker build issues related to file paths, ensure the static file paths in server-side code (e.g., `services/server/index.js`) match the actual directory structure in the Docker container. Specifically, check paths used in `express.static()` and `res.sendFile()` calls. Common issues include incorrect relative paths (e.g., using `../frontend/dist` when the files are located in `./dist`).
+- When debugging Dockerfiles and encountering a "module not found" error for `index.js` or `server.js`, verify that the correct file is specified in the `CMD` instruction. If the file is named `index.js`, the `CMD` should be `CMD ["node", "index.js"]`.
+- When pushing branches to remote repositories and encountering errors like "dockerBuild cannot be resolved to branch", ensure the branch exists locally (`git branch -a`), create it if necessary (`git checkout -b dockerBuild`), add and commit changes (`git add .`, `git commit -m "message"`), and push to the correct remote (`git push origin dockerBuild`). Use `git push -u origin dockerBuild` to set the upstream for the branch.
