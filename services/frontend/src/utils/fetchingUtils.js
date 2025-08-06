@@ -1,24 +1,43 @@
-const basicFetchOptions = {
-  method: 'GET',
-  credentials: 'include',
+// JWT Token management
+export const getToken = () => localStorage.getItem('jwt_token');
+export const setToken = (token) => localStorage.setItem('jwt_token', token);
+export const removeToken = () => localStorage.removeItem('jwt_token');
+
+// Helper to get auth headers
+const getAuthHeaders = () => {
+  const token = getToken();
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
 };
 
-export const deleteOptions = {
+export const getGetOptions = () => ({
+  method: 'GET',
+  headers: {
+    ...getAuthHeaders(),
+  },
+});
+
+export const getDeleteOptions = () => ({
   method: 'DELETE',
-  credentials: 'include',
-};
+  headers: {
+    ...getAuthHeaders(),
+  },
+});
 
 export const getPostOptions = (body) => ({
   method: 'POST',
-  credentials: 'include',
-  headers: { 'Content-Type': 'application/json' },
+  headers: { 
+    'Content-Type': 'application/json',
+    ...getAuthHeaders(),
+  },
   body: JSON.stringify(body),
 });
 
 export const getPatchOptions = (body) => ({
   method: 'PATCH',
-  credentials: 'include',
-  headers: { 'Content-Type': 'application/json' },
+  headers: { 
+    'Content-Type': 'application/json',
+    ...getAuthHeaders(),
+  },
   body: JSON.stringify(body),
 });
 

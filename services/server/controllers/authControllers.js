@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { generateToken } = require('../middleware/jwtAuth');
 
 exports.registerUser = async (req, res) => {
   // Request needs a body
@@ -15,9 +16,13 @@ exports.registerUser = async (req, res) => {
   // User.create will handle hashing the password and storing in the database
   const user = await User.create(username, password);
 
-  // Add the user id to the cookie and send the user data back
-  req.session.userId = user.id;
-  res.send(user);
+  // Generate JWT token and send back with user data
+  const token = generateToken(user);
+  res.json({ 
+    user: user.getPublicProfile(),
+    token,
+    message: 'User registered successfully'
+  });
 };
 
 exports.loginUser = async (req, res) => {
@@ -44,24 +49,29 @@ exports.loginUser = async (req, res) => {
     return res.status(401).send({ message: 'Invalid credentials.' });
   }
 
-  // Add the user id to the cookie and send the user data back
-  req.session.userId = user.id;
-  res.send(user);
+  // Generate JWT token and send back with user data
+  const token = generateToken(user);
+  res.json({ 
+    user: user.getPublicProfile(),
+    token,
+    message: 'Login successful'
+  });
 };
 
 
 exports.showMe = async (req, res) => {
-  // no cookie with an id => Not authenticated.
-  if (!req.session.userId) {
-    return res.status(401).send({ message: "User must be authenticated." });
+  // JWT middleware ensures req.user exists for authenticated requests
+  // Get the full user data from database
+  const user = await User.find(req.user.id);
+  if (!user) {
+    return res.status(404).send({ message: "User not found." });
   }
-
-  // cookie with an id => here's your user info!
-  const user = await User.find(req.session.userId);
-  res.send(user);
+  
+  res.json(user.getPublicProfile());
 };
 
 exports.logoutUser = (req, res) => {
-  req.session = null; // "erase" the cookie
-  res.status(204).send({ message: "User logged out." });
+  // With JWT, logout is handled client-side by removing the token
+  // Server doesn't need to do anything as JWTs are stateless
+  res.json({ message: "User logged out successfully." });
 };

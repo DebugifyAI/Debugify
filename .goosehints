@@ -1,0 +1,16 @@
+Project Overview: 
+A modern, full-stack web platform, where users can view and share bug reports from uploaded Playwright traces, Chrome DevTools logs, VsCode error exports, and more. The system automatically summarizes each report using an LLM and suggests next steps or possible fixes. Users can securely share, live sandboxed browser sessions for interactive debugging. 
+
+Tech Stack: 
+FrontEnd: React + NextJs and TailwindCSS 
+Backend: ExpressJS 
+Authentication: JWT
+Real-Time: WebSockets 
+Queue: Redis + BullMQ 
+Database: PostgreSQL 16 + pgvector 
+Browser Sandbox: Docker(Playwright Image)
+LLM Text Models : GPT-4o, Gemini Flash Lite depending on the cost.
+LLM Vision Models: GPT-Image, Google Cloud Vision AI
+
+Backend Pattern: 
+Make sure the backend adheres to the Model/Controller pattern and only uses ES class based + Knex patterns for the models.

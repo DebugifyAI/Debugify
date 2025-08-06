@@ -9,7 +9,11 @@ globs: *
 
 ## TECH STACK
 
+- When installing packages, use `npm` instead of `pnpm`.
+
 ## PROJECT DOCUMENTATION & CONTEXT SYSTEM
+
+- When using JWT, ensure that the `JWT_SECRET` environment variable is set with a secure secret key. Optionally, configure `JWT_EXPIRES_IN` to define token expiration (defaults to 24h if not specified).
 
 ## DEBUGGING
 
@@ -93,3 +97,4 @@ globs: *
 - When troubleshooting Docker build issues related to file paths, ensure the static file paths in server-side code (e.g., `services/server/index.js`) match the actual directory structure in the Docker container. Specifically, check paths used in `express.static()` and `res.sendFile()` calls. Common issues include incorrect relative paths (e.g., using `../frontend/dist` when the files are located in `./dist`).
 - When debugging Dockerfiles and encountering a "module not found" error for `index.js` or `server.js`, verify that the correct file is specified in the `CMD` instruction. If the file is named `index.js`, the `CMD` should be `CMD ["node", "index.js"]`.
 - When pushing branches to remote repositories and encountering errors like "dockerBuild cannot be resolved to branch", ensure the branch exists locally (`git branch -a`), create it if necessary (`git checkout -b dockerBuild`), add and commit changes (`git add .`, `git commit -m "message"`), and push to the correct remote (`git push origin dockerBuild`). Use `git push -u origin dockerBuild` to set the upstream for the branch.
+- Ensure that environment variables are properly configured for the services in `docker-compose.yml`.
