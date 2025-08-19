@@ -78,3 +78,6 @@ form>h2 {
   font-weight: bold;
   font-style: italic;
 }
+
+/* Progress Monitor Styles */
+@import './progressMonitor.css';

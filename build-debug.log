@@ -1,193 +1,436 @@
 --progress is a global compose flag, better use `docker compose --progress xx build ...
-time="2025-08-06T04:39:52-04:00" level=warning msg="/Users/michael/Desktop/Coding/MLS/Debugify/Debugify/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+time="2025-08-19T11:59:05-04:00" level=warning msg="/Users/michael/Desktop/Coding/MLS/Debugify/Debugify/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
 #1 [internal] load local bake definitions
-#1 reading from stdin 446B done
+#1 reading from stdin 1.20kB done
 #1 DONE 0.0s
 
-#2 [internal] load build definition from Dockerfile
-#2 transferring dockerfile: 1.25kB 0.0s done
+#2 [frontend internal] load build definition from Dockerfile
+#2 transferring dockerfile: 282B 0.0s done
 #2 DONE 0.1s
 
-#3 [internal] load metadata for docker.io/library/node:20-alpine
-#3 ...
+#3 [worker internal] load build definition from Dockerfile.worker
+#3 transferring dockerfile: 756B 0.0s done
+#3 DONE 0.1s
 
-#4 [auth] library/node:pull token for registry-1.docker.io
-#4 DONE 0.0s
+#4 [server internal] load build definition from Dockerfile
+#4 transferring dockerfile: 1.25kB 0.0s done
+#4 DONE 0.1s
 
-#3 [internal] load metadata for docker.io/library/node:20-alpine
-#3 DONE 0.6s
+#5 [server internal] load metadata for docker.io/library/node:20-alpine
+#5 ...
 
-#5 [internal] load .dockerignore
-#5 transferring context: 2B done
-#5 DONE 0.0s
-
-#6 [frontend-builder  1/10] FROM docker.io/library/node:20-alpine@sha256:df02558528d3d3d0d621f112e232611aecfee7cbc654f6b375765f72bb262799
-#6 resolve docker.io/library/node:20-alpine@sha256:df02558528d3d3d0d621f112e232611aecfee7cbc654f6b375765f72bb262799 0.0s done
+#6 [auth] library/node:pull token for registry-1.docker.io
 #6 DONE 0.0s
 
-#7 [frontend-builder  2/10] WORKDIR /app
-#7 CACHED
+#5 [frontend internal] load metadata for docker.io/library/node:20-alpine
+#5 DONE 0.5s
 
-#8 [internal] load build context
-#8 transferring context: 5.86kB 0.0s done
+#7 [server internal] load .dockerignore
+#7 transferring context: 2B done
+#7 DONE 0.0s
+
+#8 [frontend internal] load .dockerignore
+#8 transferring context: 2B done
 #8 DONE 0.0s
 
-#9 [frontend-builder  3/10] COPY services/frontend/package.json ./
+#9 [server internal] load build context
 #9 DONE 0.0s
 
-#10 [stage-2 3/6] COPY services/server/ ./
+#10 [worker internal] load build context
 #10 DONE 0.0s
 
-#11 [stage-2 4/6] RUN npm install
-#11 ...
+#11 [worker frontend-builder  1/10] FROM docker.io/library/node:20-alpine@sha256:df02558528d3d3d0d621f112e232611aecfee7cbc654f6b375765f72bb262799
+#11 resolve docker.io/library/node:20-alpine@sha256:df02558528d3d3d0d621f112e232611aecfee7cbc654f6b375765f72bb262799
+#11 resolve docker.io/library/node:20-alpine@sha256:df02558528d3d3d0d621f112e232611aecfee7cbc654f6b375765f72bb262799 0.2s done
+#11 resolve docker.io/library/node:20-alpine@sha256:df02558528d3d3d0d621f112e232611aecfee7cbc654f6b375765f72bb262799 0.2s done
+#11 DONE 0.2s
 
-#12 [frontend-builder  4/10] RUN npm install
-#12 ...
+#12 [frontend frontend-builder  2/10] WORKDIR /app
+#12 CACHED
 
-#11 [stage-2 4/6] RUN npm install
-#11 10.63 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-#11 10.64 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
-#11 10.96 npm warn deprecated are-we-there-yet@2.0.0: This package is no longer supported.
-#11 11.28 npm warn deprecated gauge@3.0.2: This package is no longer supported.
-#11 11.37 npm warn deprecated npmlog@5.0.1: This package is no longer supported.
-#11 11.42 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
-#11 13.01 
-#11 13.01 added 195 packages, and audited 196 packages in 12s
-#11 13.01 
-#11 13.01 21 packages are looking for funding
-#11 13.01   run `npm fund` for details
-#11 13.02 
-#11 13.02 found 0 vulnerabilities
-#11 13.02 npm notice
-#11 13.02 npm notice New major version of npm available! 10.8.2 -> 11.5.2
-#11 13.02 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.5.2
-#11 13.02 npm notice To update run: npm install -g npm@11.5.2
-#11 13.02 npm notice
-#11 DONE 13.6s
+#10 [worker internal] load build context
+#10 ...
 
-#12 [frontend-builder  4/10] RUN npm install
-#12 13.67 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
-#12 13.76 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-#12 13.95 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
-#12 15.34 npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
-#12 15.54 npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
-#12 17.62 npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
-#12 18.60 
-#12 18.60 added 349 packages, and audited 350 packages in 18s
-#12 18.60 
-#12 18.60 117 packages are looking for funding
-#12 18.60   run `npm fund` for details
-#12 18.62 
-#12 18.62 2 moderate severity vulnerabilities
-#12 18.62 
-#12 18.62 To address all issues (including breaking changes), run:
-#12 18.62   npm audit fix --force
-#12 18.62 
-#12 18.62 Run `npm audit` for details.
-#12 18.62 npm notice
-#12 18.62 npm notice New major version of npm available! 10.8.2 -> 11.5.2
-#12 18.62 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.5.2
-#12 18.62 npm notice To update run: npm install -g npm@11.5.2
-#12 18.62 npm notice
-#12 DONE 18.9s
+#13 [frontend internal] load build context
+#13 transferring context: 10.65MB 4.6s
+#13 ...
 
-#13 [frontend-builder  5/10] COPY services/frontend ./
-#13 DONE 0.1s
+#10 [worker internal] load build context
+#10 ...
 
-#14 [frontend-builder  6/10] RUN npm run build
-#14 0.357 
-#14 0.357 > frontend@0.0.0 build
-#14 0.357 > vite build
-#14 0.357 
-#14 0.711 vite v4.5.14 building for production...
-#14 0.756 transforming...
-#14 2.810 ✓ 48 modules transformed.
-#14 3.000 rendering chunks...
-#14 3.009 computing gzip size...
-#14 3.021 dist/index.html                   0.45 kB │ gzip:  0.30 kB
-#14 3.021 dist/assets/index-49abffa6.css    0.70 kB │ gzip:  0.40 kB
-#14 3.021 dist/assets/index-00919914.js   172.50 kB │ gzip: 55.86 kB
-#14 3.022 ✓ built in 2.31s
-#14 DONE 3.1s
+#13 [frontend internal] load build context
+#13 transferring context: 10.96MB 5.8s done
+#13 DONE 6.8s
 
-#15 [frontend-builder  7/10] RUN ls -la
-#15 0.205 total 232
-#15 0.205 drwxr-xr-x    1 root     root          4096 Aug  6 08:40 .
-#15 0.205 drwxr-xr-x    1 root     root          4096 Aug  6 08:40 ..
-#15 0.205 -rw-r--r--    1 root     root           253 Aug  1 19:54 .gitignore
-#15 0.205 drwxr-xr-x    3 root     root          4096 Aug  6 08:40 dist
-#15 0.205 -rw-r--r--    1 root     root           361 Aug  1 19:54 index.html
-#15 0.205 drwxr-xr-x  302 root     root         12288 Aug  6 08:40 node_modules
-#15 0.205 -rw-r--r--    1 root     root        185027 Aug  6 08:40 package-lock.json
-#15 0.205 -rw-r--r--    1 root     root           760 Aug  1 19:54 package.json
-#15 0.205 drwxr-xr-x    2 root     root          4096 Aug  1 19:54 public
-#15 0.205 drwxr-xr-x    8 root     root          4096 Aug  1 19:54 src
-#15 0.205 -rw-r--r--    1 root     root           355 Aug  1 19:54 vite.config.js
-#15 DONE 0.2s
+#10 [worker internal] load build context
+#10 ...
 
-#16 [frontend-builder  8/10] RUN cat ./dist/index.html || echo "index.html not found"
-#16 0.194 <!DOCTYPE html>
-#16 0.194 <html lang="en">
-#16 0.194   <head>
-#16 0.194     <meta charset="UTF-8" />
-#16 0.194     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-#16 0.194     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-#16 0.194     <title>Auth Example</title>
-#16 0.194     <script type="module" crossorigin src="/assets/index-00919914.js"></script>
-#16 0.194     <link rel="stylesheet" href="/assets/index-49abffa6.css">
-#16 0.194   </head>
-#16 0.194   <body>
-#16 0.194     <div id="root"></div>
-#16 0.194     
-#16 0.194   </body>
-#16 0.194 </html>
-#16 DONE 0.2s
+#14 [frontend 3/5] COPY package*.json ./
+#14 DONE 1.4s
 
-#17 [frontend-builder  9/10] WORKDIR /app/dist
-#17 DONE 0.0s
+#10 [worker internal] load build context
+#10 ...
 
-#18 [frontend-builder 10/10] RUN ls -la
-#18 0.179 total 20
-#18 0.179 drwxr-xr-x    3 root     root          4096 Aug  6 08:40 .
-#18 0.179 drwxr-xr-x    1 root     root          4096 Aug  6 08:40 ..
-#18 0.179 drwxr-xr-x    2 root     root          4096 Aug  6 08:40 assets
-#18 0.179 -rw-r--r--    1 root     root           452 Aug  6 08:40 index.html
-#18 0.179 -rw-r--r--    1 root     root          1497 Aug  6 08:40 vite.svg
+#9 [server internal] load build context
+#9 ...
+
+#10 [worker internal] load build context
+#10 transferring context: 2.29MB 10.2s done
+#10 DONE 11.6s
+
+#15 [worker 3/7] COPY services/server/package*.json ./
+#15 DONE 0.8s
+
+#16 [worker 4/7] RUN npm install --production
+#16 0.999 npm warn config production Use `--omit=dev` instead.
+#16 ...
+
+#9 [server internal] load build context
+#9 transferring context: 228.99MB 15.1s done
+#9 DONE 16.1s
+
+#17 [server stage-2 3/6] COPY services/server/ ./
+#17 ...
+
+#18 [server frontend-builder  3/10] COPY services/frontend/package.json ./
 #18 DONE 0.2s
 
-#19 [stage-2 5/6] COPY --from=frontend-builder /app/dist ../static-assets
-#19 DONE 0.1s
+#19 [server frontend-builder  4/10] RUN npm install
+#19 ...
 
-#20 [stage-2 6/6] RUN ls -la
-#20 0.174 total 256
-#20 0.174 drwxr-xr-x    1 root     root          4096 Aug  6 08:40 .
-#20 0.174 drwxr-xr-x    1 root     root          4096 Aug  6 08:40 ..
-#20 0.174 -rw-r--r--    1 root     root           933 Aug  1 19:54 .eslintrc.js
-#20 0.174 -rw-r--r--    1 root     root            17 Aug  1 19:54 .gitignore
-#20 0.174 -rw-r--r--    1 root     root          1209 Aug  6 07:02 Dockerfile
-#20 0.174 drwxr-xr-x    2 root     root          4096 Aug  6 06:52 controllers
-#20 0.174 drwxr-xr-x    4 root     root          4096 Aug  1 19:54 db
-#20 0.174 -rw-r--r--    1 root     root          2194 Aug  6 08:39 index.js
-#20 0.174 -rw-r--r--    1 root     root          1060 Aug  2 00:48 knexfile.js
-#20 0.174 drwxr-xr-x    2 root     root          4096 Aug  6 06:52 middleware
-#20 0.174 drwxr-xr-x    2 root     root          4096 Aug  6 06:52 models
-#20 0.174 drwxr-xr-x    1 root     root         12288 Aug  6 08:40 node_modules
-#20 0.174 -rw-r--r--    1 root     root        192972 Aug  6 08:40 package-lock.json
-#20 0.174 -rw-r--r--    1 root     root          1215 Aug  6 06:06 package.json
-#20 DONE 0.2s
+#20 [frontend 4/5] RUN npm install
+#20 13.32 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+#20 ...
 
-#21 exporting to image
-#21 exporting layers
-#21 exporting layers 1.5s done
-#21 exporting manifest sha256:1aef7f0445b003777269a9aa3545202cb516142df0241f7be413b75a751fe3b6 done
-#21 exporting config sha256:09a3556487d79d1f8922aca0a2eb168d1aec21e9886ab840d1c08662c9949db6 done
-#21 exporting attestation manifest sha256:323bbadde93b526754b40ff50a4e4b15683a68498b1372d053ab5ba87ed5c37d 0.0s done
-#21 exporting manifest list sha256:8d373fb5ebeef483cd2c5a4bda307f20ea66c42d954e46d16301d1d42c911863 done
-#21 naming to docker.io/library/debugify-server:latest done
-#21 unpacking to docker.io/library/debugify-server:latest
-#21 unpacking to docker.io/library/debugify-server:latest 1.1s done
-#21 DONE 2.7s
+#16 [worker 4/7] RUN npm install --production
+#16 9.884 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+#16 10.07 npm warn deprecated querystring@0.2.0: The querystring API is considered Legacy. new code should use the URLSearchParams API instead.
+#16 10.07 npm warn deprecated npmlog@5.0.1: This package is no longer supported.
+#16 11.05 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+#16 12.06 npm warn deprecated gauge@3.0.2: This package is no longer supported.
+#16 13.15 npm warn deprecated are-we-there-yet@2.0.0: This package is no longer supported.
+#16 15.02 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+#16 ...
 
-#22 resolving provenance for metadata file
-#22 DONE 0.0s
+#20 [frontend 4/5] RUN npm install
+#20 14.49 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+#20 14.71 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+#20 19.31 npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+#20 19.55 npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+#20 ...
+
+#17 [server stage-2 3/6] COPY services/server/ ./
+#17 DONE 22.8s
+
+#21 [server stage-2 4/6] RUN npm install
+#21 ...
+
+#16 [worker 4/7] RUN npm install --production
+#16 30.95 
+#16 30.95 added 482 packages, and audited 483 packages in 30s
+#16 30.95 
+#16 30.95 61 packages are looking for funding
+#16 30.95   run `npm fund` for details
+#16 30.95 
+#16 30.95 found 0 vulnerabilities
+#16 30.95 npm notice
+#16 30.95 npm notice New major version of npm available! 10.8.2 -> 11.5.2
+#16 30.95 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.5.2
+#16 30.95 npm notice To update run: npm install -g npm@11.5.2
+#16 30.95 npm notice
+#16 DONE 31.5s
+
+#20 [frontend 4/5] RUN npm install
+#20 32.74 npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+#20 ...
+
+#22 [worker 5/7] COPY services/server/ ./
+#22 ...
+
+#21 [server stage-2 4/6] RUN npm install
+#21 14.49 
+#21 14.49 up to date, audited 488 packages in 14s
+#21 14.49 
+#21 14.49 63 packages are looking for funding
+#21 14.49   run `npm fund` for details
+#21 14.50 
+#21 14.50 found 0 vulnerabilities
+#21 14.50 npm notice
+#21 14.50 npm notice New major version of npm available! 10.8.2 -> 11.5.2
+#21 14.50 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.5.2
+#21 14.50 npm notice To update run: npm install -g npm@11.5.2
+#21 14.50 npm notice
+#21 DONE 15.3s
+
+#22 [worker 5/7] COPY services/server/ ./
+#22 ...
+
+#20 [frontend 4/5] RUN npm install
+#20 46.73 
+#20 46.73 added 610 packages, and audited 611 packages in 45s
+#20 46.73 
+#20 46.73 147 packages are looking for funding
+#20 46.73   run `npm fund` for details
+#20 46.77 
+#20 46.77 2 moderate severity vulnerabilities
+#20 46.77 
+#20 46.77 To address all issues (including breaking changes), run:
+#20 46.77   npm audit fix --force
+#20 46.77 
+#20 46.77 Run `npm audit` for details.
+#20 46.78 npm notice
+#20 46.78 npm notice New major version of npm available! 10.8.2 -> 11.5.2
+#20 46.78 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.5.2
+#20 46.78 npm notice To update run: npm install -g npm@11.5.2
+#20 46.78 npm notice
+#20 DONE 47.0s
+
+#22 [worker 5/7] COPY services/server/ ./
+#22 ...
+
+#23 [frontend 5/5] COPY . .
+#23 ...
+
+#19 [server frontend-builder  4/10] RUN npm install
+#19 44.96 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+#19 44.97 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+#19 45.61 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+#19 46.94 npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+#19 47.31 npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+#19 54.75 npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+#19 ...
+
+#22 [worker 5/7] COPY services/server/ ./
+#22 DONE 29.0s
+
+#24 [worker 6/7] RUN addgroup -g 1001 -S worker &&     adduser -S worker -u 1001
+#24 DONE 0.8s
+
+#23 [frontend 5/5] COPY . .
+#23 ...
+
+#25 [worker 7/7] RUN chown -R worker:worker /app
+#25 ...
+
+#19 [server frontend-builder  4/10] RUN npm install
+#19 63.43 
+#19 63.43 added 538 packages, and audited 539 packages in 1m
+#19 63.43 
+#19 63.43 125 packages are looking for funding
+#19 63.43   run `npm fund` for details
+#19 63.44 
+#19 63.44 2 moderate severity vulnerabilities
+#19 63.44 
+#19 63.44 To address all issues (including breaking changes), run:
+#19 63.44   npm audit fix --force
+#19 63.44 
+#19 63.44 Run `npm audit` for details.
+#19 63.45 npm notice
+#19 63.45 npm notice New major version of npm available! 10.8.2 -> 11.5.2
+#19 63.45 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.5.2
+#19 63.45 npm notice To update run: npm install -g npm@11.5.2
+#19 63.45 npm notice
+#19 DONE 63.8s
+
+#25 [worker 7/7] RUN chown -R worker:worker /app
+#25 ...
+
+#26 [server frontend-builder  5/10] COPY services/frontend ./
+#26 ...
+
+#23 [frontend 5/5] COPY . .
+#23 DONE 35.7s
+
+#27 [frontend] exporting to image
+#27 exporting layers
+#27 ...
+
+#26 [server frontend-builder  5/10] COPY services/frontend ./
+#26 DONE 23.5s
+
+#28 [server frontend-builder  6/10] RUN npm run build
+#28 3.729 
+#28 3.729 > frontend@0.0.0 build
+#28 3.729 > vite build
+#28 3.729 
+#28 4.618 vite v4.5.14 building for production...
+#28 4.714 transforming...
+#28 35.80 ✓ 1758 modules transformed.
+#28 36.93 rendering chunks...
+#28 36.97 computing gzip size...
+#28 37.05 dist/index.html                   0.46 kB │ gzip:  0.30 kB
+#28 37.05 dist/assets/index-be77db75.css    8.95 kB │ gzip:  2.21 kB
+#28 37.05 dist/assets/index-036a8b39.js   288.03 kB │ gzip: 87.98 kB
+#28 37.05 ✓ built in 32.43s
+#28 DONE 37.5s
+
+#27 [frontend] exporting to image
+#27 exporting layers 50.6s done
+#27 exporting manifest sha256:445c4d7371d7e52ce9a2ce6e570ee547fe4a3e7ca20482bb8e714db1809d43c9 0.0s done
+#27 exporting config sha256:db6295fcba9f662a29ea5c0ced4bfd4307ca58a20af1206bd11d0d848b2ba562 0.0s done
+#27 exporting attestation manifest sha256:1f99b293678fa92bf089b2d340383364f84361554855ac5a1996896e86f70b4d 0.0s done
+#27 exporting manifest list sha256:6d09ab4502b0476f451fb28ad4ef28f6d91b523f273fabeff181a2117ceeec35
+#27 exporting manifest list sha256:6d09ab4502b0476f451fb28ad4ef28f6d91b523f273fabeff181a2117ceeec35 0.0s done
+#27 naming to docker.io/library/debugify-frontend:latest 0.0s done
+#27 unpacking to docker.io/library/debugify-frontend:latest
+#27 ...
+
+#29 [server frontend-builder  7/10] RUN ls -la
+#29 0.692 total 460
+#29 0.693 drwxr-xr-x    1 root     root          4096 Aug 19 16:01 .
+#29 0.693 drwxr-xr-x    1 root     root          4096 Aug 19 16:01 ..
+#29 0.693 -rw-r--r--    1 root     root          6148 Aug 19 14:28 .DS_Store
+#29 0.693 -rw-r--r--    1 root     root           253 Aug  1 19:54 .gitignore
+#29 0.693 -rw-r--r--    1 root     root           243 Aug  6 10:36 Dockerfile
+#29 0.693 drwxr-xr-x    1 root     root          4096 Aug 19 16:01 dist
+#29 0.693 -rw-rw-r--    1 root     root           620 Aug 19  2025 eslint.config.js
+#29 0.693 -rw-rw-r--    1 root     root           367 Aug 19 14:30 index.html
+#29 0.693 drwxr-xr-x    1 root     root         20480 Aug 19 15:06 node_modules
+#29 0.693 -rw-r--r--    1 root     root        380921 Aug 19 14:53 package-lock.json
+#29 0.693 -rw-r--r--    1 root     root          2612 Aug 19 14:54 package.json
+#29 0.693 -rw-rw-r--    1 root     root           151 Aug 19 14:54 postcss.config.js
+#29 0.693 drwxr-xr-x    9 root     root          4096 Aug 19 14:28 src
+#29 0.693 -rw-rw-r--    1 root     root          2171 Aug 19  2025 tailwind.config.js
+#29 0.693 -rw-r--r--    1 root     root           790 Aug 19 15:57 vite.config.js
+#29 DONE 0.8s
+
+#30 [server frontend-builder  8/10] RUN cat ./dist/index.html || echo "index.html not found"
+#30 0.436 <!doctype html>
+#30 0.436 <html lang="en">
+#30 0.436   <head>
+#30 0.436     <meta charset="UTF-8" />
+#30 0.436     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+#30 0.436     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+#30 0.436     <title>Debugify Dashboard</title>
+#30 0.436     <script type="module" crossorigin src="/assets/index-036a8b39.js"></script>
+#30 0.436     <link rel="stylesheet" href="/assets/index-be77db75.css">
+#30 0.436   </head>
+#30 0.436   <body>
+#30 0.436     <div id="root"></div>
+#30 0.436     
+#30 0.436   </body>
+#30 0.436 </html>
+#30 DONE 0.5s
+
+#31 [server frontend-builder  9/10] WORKDIR /app/dist
+#31 DONE 0.1s
+
+#27 [frontend] exporting to image
+#27 ...
+
+#32 [server frontend-builder 10/10] RUN ls -la
+#32 0.327 total 24
+#32 0.327 drwxr-xr-x    1 root     root          4096 Aug 19 16:01 .
+#32 0.327 drwxr-xr-x    1 root     root          4096 Aug 19 16:01 ..
+#32 0.327 drwxr-xr-x    2 root     root          4096 Aug 19 16:01 assets
+#32 0.327 -rw-r--r--    1 root     root           458 Aug 19 16:01 index.html
+#32 DONE 0.5s
+
+#25 [worker 7/7] RUN chown -R worker:worker /app
+#25 ...
+
+#33 [server stage-2 5/6] COPY --from=frontend-builder /app/dist ../static-assets
+#33 DONE 0.4s
+
+#25 [worker 7/7] RUN chown -R worker:worker /app
+#25 ...
+
+#34 [server stage-2 6/6] RUN ls -la
+#34 0.549 total 8976
+#34 0.549 drwxr-xr-x    1 root     root          4096 Aug 19 14:31 .
+#34 0.549 drwxr-xr-x    1 root     root          4096 Aug 19 16:01 ..
+#34 0.549 -rw-r--r--    1 root     root           509 Aug 19 14:11 .env
+#34 0.549 -rw-r--r--    1 root     root           933 Aug  1 19:54 .eslintrc.js
+#34 0.549 -rw-r--r--    1 root     root            17 Aug  1 19:54 .gitignore
+#34 0.549 -rw-r--r--    1 root     root          1209 Aug 15 00:48 Dockerfile
+#34 0.549 -rw-r--r--    1 root     root           710 Aug  6 17:55 Dockerfile.worker
+#34 0.549 -rw-r--r--    1 root     root          8387 Aug 19 01:20 SECURITY_IMPLEMENTATION_SUMMARY.md
+#34 0.549 drwxr-xr-x    2 root     root          4096 Aug 19 14:31 controllers
+#34 0.549 drwxr-xr-x    4 root     root          4096 Aug  1 19:54 db
+#34 0.549 drwxr-xr-x    2 root     root          4096 Aug 19 14:31 docs
+#34 0.549 -rw-r--r--    1 root     root       5199098 Aug 17 21:53 eng.traineddata
+#34 0.549 drwxr-xr-x    2 root     root          4096 Aug 19 14:31 examples
+#34 0.549 drwxr-xr-x    2 root     root          4096 Aug 17 21:56 helpers
+#34 0.549 -rw-r--r--    1 root     root         11066 Aug 19 13:26 index.js
+#34 0.549 -rw-r--r--    1 root     root           506 Aug 19 13:58 jest.config.js
+#34 0.549 -rw-r--r--    1 root     root          1062 Aug 16 23:53 knexfile.js
+#34 0.549 drwxr-xr-x    3 root     root          4096 Aug 19 13:58 logs
+#34 0.549 drwxr-xr-x    2 root     root          4096 Aug 19 14:31 middleware
+#34 0.549 drwxr-xr-x    2 root     root          4096 Aug 18 04:29 models
+#34 0.549 drwxr-xr-x    1 root     root         12288 Aug 19 16:00 node_modules
+#34 0.549 -rw-r--r--    1 root     root        430172 Aug 19 16:00 package-lock.json
+#34 0.549 -rw-r--r--    1 root     root          1992 Aug 19 12:37 package.json
+#34 0.549 drwxr-xr-x    2 root     root          4096 Aug 18 04:29 queues
+#34 0.549 drwxr-xr-x    2 root     root          4096 Aug 19 14:31 scripts
+#34 0.549 drwxr-xr-x    2 root     root          4096 Aug 19 14:31 services
+#34 0.549 -rw-r--r--    1 root     root       3379457 Aug 17 21:53 spa.traineddata
+#34 0.549 -rw-r--r--    1 root     root          1449 Aug 19 12:49 test-security-validation.js
+#34 0.549 drwxr-xr-x    3 root     root          4096 Aug 19 14:31 tests
+#34 0.549 drwxr-xr-x    2 root     root          4096 Aug 19 14:31 utils
+#34 0.549 -rw-r--r--    1 root     root          6147 Aug 19 13:15 validate-artifact-management.js
+#34 0.549 -rw-r--r--    1 root     root          8456 Aug 19 13:27 validate-monitoring-system.js
+#34 0.549 -rw-r--r--    1 root     root          2430 Aug 18 01:42 worker.js
+#34 0.549 drwxr-xr-x    2 root     root          4096 Aug 19 14:31 workers
+#34 DONE 0.7s
+
+#27 [frontend] exporting to image
+#27 ...
+
+#35 [server] exporting to image
+#35 exporting layers
+#35 ...
+
+#27 [frontend] exporting to image
+#27 unpacking to docker.io/library/debugify-frontend:latest 97.6s done
+#27 DONE 149.2s
+
+#25 [worker 7/7] RUN chown -R worker:worker /app
+#25 ...
+
+#36 [frontend] resolving provenance for metadata file
+#36 DONE 0.2s
+
+#35 [server] exporting to image
+#35 ...
+
+#25 [worker 7/7] RUN chown -R worker:worker /app
+#25 DONE 168.8s
+
+#37 [worker] exporting to image
+#37 exporting layers
+#37 ...
+
+#35 [server] exporting to image
+#35 exporting layers 93.5s done
+#35 exporting manifest sha256:89f2dbbbc766bb3bdb1e5dcc4a4a92820cb3f47e1cdf4b29d152927e9e54ff12 0.0s done
+#35 exporting config sha256:eef4ddd65432ff49f0d57bbae5c0eec169c1b5694b2875d1e761adf03c3b1922 0.0s done
+#35 exporting attestation manifest sha256:fda36e5d9d4898abd562d93d94abf61d6e1ab3033a7e10ba658e45b557131ab7 0.2s done
+#35 exporting manifest list sha256:342b68b0335879c970fcfc45cec38c562143856a0661ef21353c59b9f7d04a03 0.0s done
+#35 naming to docker.io/library/debugify-server:latest 0.0s done
+#35 unpacking to docker.io/library/debugify-server:latest
+#35 unpacking to docker.io/library/debugify-server:latest 35.4s done
+#35 DONE 130.3s
+
+#37 [worker] exporting to image
+#37 ...
+
+#38 [server] resolving provenance for metadata file
+#38 DONE 0.1s
+
+#37 [worker] exporting to image
+#37 exporting layers 72.8s done
+#37 exporting manifest sha256:96a5d85068017883b4ee58a159e1f1b1122406286c7426300c6cd4577ebc898f 0.0s done
+#37 exporting config sha256:0e0389cc54991cc269ace59b127a1c6c3650eeb8aa65065f047beb6bcd5c8cc4 0.0s done
+#37 exporting attestation manifest sha256:c67c150ebe890ecba6be4309c1884c75c4866533f605e1296504d9207fd8cb86 0.0s done
+#37 exporting manifest list sha256:f1a80a435355edf38f4ffc3861ef0127131280465e0c8d04979f34019b2e4ca3 0.0s done
+#37 naming to docker.io/library/debugify-worker:latest
+#37 naming to docker.io/library/debugify-worker:latest done
+#37 unpacking to docker.io/library/debugify-worker:latest
+#37 unpacking to docker.io/library/debugify-worker:latest 43.7s done
+#37 DONE 117.1s
+
+#39 [worker] resolving provenance for metadata file
+#39 DONE 0.0s
+ frontend  Built
  server  Built
+ worker  Built

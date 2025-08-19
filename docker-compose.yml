@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-debugify}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-debugify}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -17,6 +17,20 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    command: redis-server --appendonly yes
 
   frontend:
     build:
@@ -47,9 +61,17 @@ services:
       # JWT Authentication Configuration
       JWT_SECRET: ${JWT_SECRET:-your-super-secure-jwt-secret-key-change-in-production}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-24h}
+      # Redis Configuration
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # Ollama Configuration
+      # OLLAMA_BASE_URL: http://ollama:11434
+      # OLLAMA_TEXT_MODEL: ${OLLAMA_TEXT_MODEL:-llama3.2:3b}
+      # OLLAMA_VISION_MODEL: ${OLLAMA_VISION_MODEL:-llava:7b}
+      # OLLAMA_CODE_MODEL: ${OLLAMA_CODE_MODEL:-codellama:7b}
       # Database Configuration (for fallback)
       PG_HOST: postgres
-      PG_PORT: 5432
+      PG_PORT: 5433
       PG_USER: ${POSTGRES_USER:-debugify}
       PG_PASS: ${POSTGRES_PASSWORD:-debugify}
       PG_DB: ${POSTGRES_DB:-debugify}
@@ -58,6 +80,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+      # ollama:
+      #   condition: service_healthy
     volumes:
       - ./services/server:/app
       - /app/node_modules
@@ -69,5 +95,70 @@ services:
       retries: 3
       start_period: 40s
 
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   ports:
+  #     - "${OLLAMA_PORT:-11434}:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   environment:
+  #     OLLAMA_HOST: 0.0.0.0
+  #     OLLAMA_ORIGINS: "*"
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+  #   # Uncomment the following lines if you have NVIDIA GPU support
+  #   # deploy:
+  #   #   resources:
+  #   #     reservations:
+  #   #       devices:
+  #   #         - driver: nvidia
+  #   #           count: 1
+  #   #           capabilities: [gpu]
+
+  worker:
+    build:
+      context: .
+      dockerfile: services/server/Dockerfile.worker
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-debugify}:${POSTGRES_PASSWORD:-debugify}@postgres:5432/${POSTGRES_DB:-debugify}
+      # JWT Authentication Configuration
+      JWT_SECRET: ${JWT_SECRET:-your-super-secure-jwt-secret-key-change-in-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-24h}
+      # Redis Configuration
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # Ollama Configuration
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_TEXT_MODEL: ${OLLAMA_TEXT_MODEL:-llama3.2:3b}
+      OLLAMA_VISION_MODEL: ${OLLAMA_VISION_MODEL:-llava:7b}
+      OLLAMA_CODE_MODEL: ${OLLAMA_CODE_MODEL:-codellama:7b}
+      # Database Configuration (for fallback)
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: ${POSTGRES_USER:-debugify}
+      PG_PASS: ${POSTGRES_PASSWORD:-debugify}
+      PG_DB: ${POSTGRES_DB:-debugify}
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      # ollama:
+      #   condition: service_healthy
+    volumes:
+      - ./services/server:/app
+      - /app/node_modules
+    restart: unless-stopped
+
 volumes:
   postgres_data:
+  redis_data:
+  ollama_data:

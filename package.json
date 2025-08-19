@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "description": "A modern full stack web platform that leverages AI and E2E tools to streamline the debugging process",
-  "workspaces": [
-    "services/*"
-  ],
   "scripts": {
     "dev": "pnpm run --parallel dev",
     "build": "pnpm run --recursive build",

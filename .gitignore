@@ -92,6 +92,7 @@ temp/
 *.njsproj
 *.sln
 *.sw?
+*.kiro
 
 # OS generated files
 Thumbs.db
@@ -122,3 +123,5 @@ charts/*.tgz
 
 # Local development
 .local/ 
+
+./specstory

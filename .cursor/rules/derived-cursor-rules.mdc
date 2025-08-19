@@ -5,96 +5,766 @@ globs: *
 
 ## PROJECT RULES & CODING STANDARDS
 
+- When installing packages, use `npm` instead of `pnpm`.
+- When encountering issues with package versions, pin dependency versions instead of using "latest" to avoid resolution problems.
+
 ## WORKFLOW & RELEASE RULES
+
+- When resolving build errors, first check the relevant configuration files (e.g., `vite.config.js`, `postcss.config.js`, `tailwind.config.js`).
+- After making changes to dependencies in `package.json`, always run `npm install` to update the lockfile.
+- Always verify that `npm run build` succeeds after making changes to dependencies or configurations.
+- After making changes to `vite.config.js`, always restart the dev server.
 
 ## TECH STACK
 
 - When installing packages, use `npm` instead of `pnpm`.
 
-## PROJECT DOCUMENTATION & CONTEXT SYSTEM
-
-- When using JWT, ensure that the `JWT_SECRET` environment variable is set with a secure secret key. Optionally, configure `JWT_EXPIRES_IN` to define token expiration (defaults to 24h if not specified).
-
 ## DEBUGGING
 
-- When using `pnpm --filter` to run a script in a specific package, always ensure the filter matches the exact `name` field in the package's `package.json` file. Avoid assuming scoped package names (e.g., `@debugify/frontend`) unless explicitly defined in the `package.json`. The filter should match the `name` field.
-- When encountering issues with `pnpm` commands, verify that the command is compatible with the shell being used (e.g., PowerShell vs. bash). PowerShell might require different syntax for operators like `&&`.
-- When troubleshooting `pnpm` commands, especially `pnpm --filter`, double-check the package name in the `package.json` to ensure it matches the filter being used.
-- When encountering issues with `pnpm --filter`, also consider these alternative solutions:
-   - Run from the frontend directory directly:
-     ```bash
-     cd services/frontend
-     pnpm run build
-     ```
-   - Use the workspace script from the root:
-     ```bash
-     pnpm run build
-     ```
-     (This will build all packages recursively)
-   - Update the package name in `services/frontend/package.json` to `"@debugify/frontend"` if you want to use that naming convention.
-- When troubleshooting Docker build issues related to `pnpm`, ensure the `pnpm-lock.yaml` file is included in the Docker context. This file is essential for `--frozen-lockfile` to work correctly.
-- When using `pnpm` in Dockerfiles, ensure the file copying order is correct: workspace config files (e.g., `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`) should be copied first, followed by individual service `package.json` files, before running `pnpm install`.
-- When building Docker images, the builder stage should properly copy source files and workspace configuration to ensure the build process has all necessary files.
-- When creating Dockerfiles, the runtime stage should install production dependencies only, using `pnpm install --prod --frozen-lockfile`. Avoid copying the entire `node_modules` directory from the builder stage to reduce image size and potential conflicts.
-- If encountering the `ERR_PNPM_BROKEN_LOCKFILE` error during Docker builds, consider the following potential fixes:
-    - Regenerate the lockfile by deleting `pnpm-lock.yaml` and running `pnpm install`.
-    - Use a different or specific `pnpm` version by updating the Dockerfile with `RUN corepack prepare pnpm@<version> --activate`.
-    - As a temporary workaround, remove the `--frozen-lockfile` flag from the Dockerfile's `pnpm install` command.
-    - Try copying `pnpm-lock.yaml` separately in the Dockerfile before other configuration files.
-    - Consider a simpler Docker build approach by focusing on individual service directories instead of the entire workspace.
-    - Check the `pnpm-lock.yaml` file for syntax errors or format incompatibilities.
-    - As a last resort and temporary fix, switch to `npm` instead of `pnpm` in the Dockerfile.
-- If encountering the `ERR_PNPM_INVALID_WORKSPACE_CONFIGURATION packages field missing or empty` error during Docker builds, consider the following potential fixes:
-    - Check if `pnpm-workspace.yaml` is being copied correctly in the Dockerfile with the line `COPY pnpm-workspace.yaml ./`.
-    - Consider using the `workspaces` field in the root `package.json` instead of `pnpm-workspace.yaml`:
-        ```json
-        {
-          "workspaces": ["services/*"]
-        }
-        ```
-    - Ensure the workspace configuration file is copied before any pnpm commands in the Dockerfile.
-    - Consider a simpler Docker build approach without using a workspace.
-    - Check the `pnpm-workspace.yaml` file for correct syntax:
-        ```yaml
-        packages:
-          - 'services/*'
-        ```
-    - Try using absolute paths in the workspace configuration file.
-    - Add a debug step in the Dockerfile to list files and check the workspace setup:
-        ```dockerfile
-        RUN ls -la
-        RUN cat pnpm-workspace.yaml
-        ```
-- If encountering issues where Docker is trying to copy `node_modules` from a path that doesn't exist, double check the copy paths in the builder stage:
-    - The `COPY` commands should match the actual directory structure.
-    - When using `npm`, consider using a simplified build process without complex multi-stage setup with `node_modules` copying.
-    - If using `npm install` in each stage, you may not need to copy `node_modules`.
-    - For simplicity, consider using a single-stage build.
-    - Always double check the actual directory structure to ensure the copy commands match where the files actually are.
-    - Instead of copying `node_modules`, install production dependencies in the runtime stage.
-- When debugging Dockerfiles, if encountering a "not found" error:
-  - Verify the COPY commands syntax. Ensure they correctly specify the source and destination paths.
-  - If switching from pnpm to npm, remove any pnpm-related files and commands from the Dockerfile.
-  - When switching from pnpm to npm, update the build command in the Dockerfile to use `npm run build`.
-  - If using npm, avoid complex node_modules copying strategies.
-  - Ensure the runtime stage installs production dependencies using `npm install --production`.
-  - Consider using a simpler Dockerfile structure, especially when building a single service.
-  - Ensure that you're not mixing pnpm and npm commands, as they handle node_modules differently.
-- If encountering the error `exit code: 127` in a Docker build, this typically means "command not found". This suggests that a command is failing because the necessary executable isn't available. Possible fixes:
-    - Review the Dockerfile to identify which command is failing and ensure that it is installed or available in the Docker image.
-    - Ensure the correct package.json is being copied, not the root one.
-- If encountering `Error: Cannot find module '/app/server.js'` in the container logs:
-  - Ensure the `server.js` file (or `index.js` if that's what you're using) is being correctly copied from the builder stage to the runtime stage in the Dockerfile.
-  - Double-check the path used in the `CMD` instruction in the Dockerfile to ensure it matches the location where `server.js` or `index.js` is copied.
-  - Verify that the `server.js` or `index.js` file exists in the correct directory.
-  - If copying `server.js` or `index.js` from the builder stage is problematic, try copying it directly from the source.
-- When debugging Dockerfiles, remember that console logs from `RUN` commands are outputted to the Docker build logs in your terminal.
-- When debugging Dockerfiles, add `echo` statements and `ls -la` commands to inspect the file system at different stages.
-- When debugging Dockerfiles, the debug output from the builder stage won't show up when the runtime stage fails. Debug commands must be added to the stage where the error is occurring.
-- When debugging Dockerfiles, add debug steps in the builder stage to check file existence and permissions.
-- When debugging Dockerfiles, add debug steps in the runtime stage to check file existence and permissions.
-- When debugging Dockerfiles, if facing issues with debug output, force a rebuild without cache using `docker build --no-cache -f services/frontend/Dockerfile .`.
-- When troubleshooting Docker build issues related to file paths, ensure the static file paths in server-side code (e.g., `services/server/index.js`) match the actual directory structure in the Docker container. Specifically, check paths used in `express.static()` and `res.sendFile()` calls. Common issues include incorrect relative paths (e.g., using `../frontend/dist` when the files are located in `./dist`).
-- When debugging Dockerfiles and encountering a "module not found" error for `index.js` or `server.js`, verify that the correct file is specified in the `CMD` instruction. If the file is named `index.js`, the `CMD` should be `CMD ["node", "index.js"]`.
-- When pushing branches to remote repositories and encountering errors like "dockerBuild cannot be resolved to branch", ensure the branch exists locally (`git branch -a`), create it if necessary (`git checkout -b dockerBuild`), add and commit changes (`git add .`, `git commit -m "message"`), and push to the correct remote (`git push origin dockerBuild`). Use `git push -u origin dockerBuild` to set the upstream for the branch.
-- Ensure that environment variables are properly configured for the services in `docker-compose.yml`.
+- When debugging frontend build issues in `vite.config.js`, make sure the alias keys use regex `^@/` to map correctly. For example:
+```javascript
+resolve: {
+  alias: [
+    { find: /^@\//, replacement: fileURLToPath(new URL('./src/', import.meta.url)) },
+  ],
+},
+```
+
+## PROJECT DOCUMENTATION & CONTEXT SYSTEM
+
+- When using JWT, ensure that the `JWT_SECRET` environment variable is set with a secure secret key. Generate a secure JWT secret using `openssl rand -base64 64`. Optionally, configure `JWT_EXPIRES_IN` to define token expiration (defaults to 24h if not specified).
+
+### Docker Compose Environment Variables
+
+- `JWT_SECRET`: Configurable JWT signing secret with fallback default. Generate a secure JWT secret using `openssl rand -base64 64`.
+- `JWT_EXPIRES_IN`: Token expiration time (default: 24h).
+- `POSTGRES_DB`: Database name (default: debugify).
+- `POSTGRES_USER`: Database user (default: debugify).
+- `POSTGRES_PASSWORD`: Database password (default: your-secure-db-password).
+- `POSTGRES_PORT`: External port mapping for the database (default: 5432).
+- `NODE_ENV`: Environment mode (default: development).
+- `PORT`: Backend server port (default: 3001).
+- `SERVER_PORT`: External port mapping for the backend server in Docker (default: 3001).
+- `FRONTEND_PORT`: External port mapping for the frontend in Docker (default: 5173).
+- `REDIS_HOST`: Redis host (default: redis).
+- `REDIS_PORT`: Redis port (default: 6379).
+- `REDIS_PASSWORD`: Redis password (optional).
+- `VITE_API_URL`: API endpoint configuration for the frontend. Use `http://localhost:3001` for local development and `http://server:3001` for Docker development.
+- `ENABLE_WORKER_HEALTH_CHECK`: Enable worker health check (default: true).
+- `WORKER_HEALTH_PORT`: Health check port for the worker (default: true).
+
+### React Client to Backend Connection
+
+- In Development Mode (using `docker-compose up`), the frontend runs on port 5173 and the backend runs on port 3001. API calls are proxied through Vite (`/api/*` → `http://server:3001/api/*`).
+- In Production Mode (using `docker-compose.prod.yml`), the application runs on a single port 3001. The backend serves the built frontend. API calls are direct to the same origin (`/api/*`).
+
+### Frontend Configuration Variables
+
+```bash
+# API endpoint configuration
+VITE_API_URL=http://localhost:3001  # For local development
+VITE_API_URL=http://server:3001     # For Docker development
+
+# Frontend port
+FRONTEND_PORT=5173  # External port mapping for Docker
+```
+
+### API Connection Patterns
+
+- **Development Mode (docker-compose up)**:
+  - Frontend: Runs on port 5173 with Vite dev server.
+  - Backend: Runs on port 3001.
+  - API Calls: Proxied through Vite (`/api/*` → `http://server:3001/api/*`).
+  - Hot Reloading: Enabled for both frontend and backend.
+- **Production Mode (docker-compose.prod.yml)**:
+  - Application: Single port 3001 (backend serves everything).
+  - Static Files: Built frontend served by Express.
+  - API Calls: Direct to same origin (`/api/*`).
+  - Hot Reloading: Disabled (static build).
+
+### Troubleshooting Connection Issues
+
+#### Common Issues and Solutions
+
+1. **CORS Errors**
+   ```bash
+   # Check if frontend is making requests to correct backend URL
+   # In browser network tab, verify API calls go to: http://localhost:3001/api/*
+   ```
+
+2. **Port Conflicts**
+   ```bash
+   # Check if ports are already in use
+   lsof -i :3001  # Backend port
+   lsof -i :5173  # Frontend port
+   lsof -i :5432  # Database port
+   ```
+
+3. **Docker Network Issues**
+   ```bash
+   # Recreate Docker network
+   docker-compose down
+   docker-compose up --build
+   ```
+
+4. **Environment Variable Issues**
+   ```bash
+   # Check Docker environment
+   docker-compose exec server env | grep JWT
+   docker-compose exec frontend env | grep VITE
+   ```
+
+#### Verifying Connections
+
+```bash
+# Test backend API directly
+curl http://localhost:3001/api/auth/me
+
+# Test frontend access
+curl http://localhost:5173
+
+# Check Docker services
+docker-compose ps
+docker-compose logs frontend
+docker-compose logs server
+docker-compose logs worker
+docker-compose logs redis
+```
+
+### BullMQ Queue System
+
+- Services Architecture:
+  - Server: Handles HTTP requests and enqueues jobs
+  - Worker: Processes background jobs (file processing, etc.)
+  - Redis: Message broker and job storage
+  - Queue Types: File processing, email notifications, data analysis
+
+### Queue Operations
+
+#### Enqueue Jobs (Server)
+
+```javascript
+const { enqueueFileProcessingJob } = require('./queues/fileProcessingQueue');
+
+# Add job to queue
+const jobId = await enqueueFileProcessingJob(bugReportId, files);
+```
+
+#### Monitor Jobs
+
+```bash
+# Check worker logs
+docker-compose logs -f worker
+
+# Check Redis connection
+docker-compose exec redis redis-cli ping
+
+# View all services
+docker-compose ps
+```
+
+### Queue Management Commands
+
+```bash
+# Start only specific services
+docker-compose up postgres redis worker
+
+# Scale workers
+docker-compose up --scale worker=3
+
+# Check queue status (if Bull Board is added)
+# http://localhost:3001/admin/queues
+```
+
+### Production Considerations
+
+1. Worker Scaling: Use multiple worker instances for high throughput
+2. Redis Persistence: Configured with AOF persistence
+3. Job Retention: Automatically cleans up old jobs (configurable)
+4. Error Handling: Failed jobs are retried with exponential backoff
+5. Monitoring: Add Bull Board for queue visualization
+
+### Setting up the Database
+Default credentials are:
+- POSTGRES_DB: debugify
+- POSTGRES_USER: debugify
+- POSTGRES_PASSWORD: debugify
+
+The default `DATABASE_URL` is:
+- postgresql://debugify:debugify@postgres:5432/debugify
+
+Optional overrides can be set via .env:
+```
+POSTGRES_DB=mydb
+POSTGRES_USER=myuser
+POSTGRES_PASSWORD=mypassword
+```
+
+Local connections can be made with:
+```
+psql postgresql://debugify:debugify@localhost:5432/debugify
+```
+
+- Updated `docker-compose.yml` uses these defaults unless you set environment variables.
+
+- The - you’re seeing is from variable substitution syntax: `${POSTGRES_USER:-debugify}`. The `:-` means “use debugify if POSTGRES_USER is unset or empty.” The actual value is debugify, without a hyphen.
+- If you see a dash at the start of a line in YAML (e.g., - "3001:3001"), that dash denotes a list item, not part of the value.
+
+- Host: localhost (or 127.0.0.1)
+- Port: 5432 (or whatever you set in POSTGRES_PORT)
+- User: debugify
+- Password: debugify
+- Database: debugify
+
+Note: From another container, use host postgres (the service name), not localhost.
+
+### Amazon S3 Bucket Implementation
+
+To implement Amazon S3 bucket integration in the file processing workflow, follow these steps:
+
+**Goal:** Upload the post-LLM “artifact” to S3 in the worker, save its S3 location in the DB, and make it retrievable later.
+
+**Prerequisites:**
+
+- AWS account + S3 bucket created.
+- IAM user/role with least-privilege policy for S3 put/get (and optionally list/delete).
+- Env vars available to server and worker:
+    - AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION
+    - AWS_S3_BUCKET_NAME
+    - Optional: AWS_S3_PREFIX (e.g., bug-reports/), AWS_S3_KMS_KEY_ID (if using SSE-KMS)
+
+**Data model changes:**
+
+- Add columns to the table that will store the artifact reference (e.g., `llm_outputs` or `bug_histories`):
+    - s3_bucket (string), s3_key (string), content_type (string), size_bytes (int), etag (string), checksum (string, optional), created_at (timestamp).
+- Add a migration and update the relevant model (e.g., `Llm_outputs.js` or `BugHistory.js`) to persist these fields.
+- Prefer storing the S3 key over a public URL; generate signed URLs on demand.
+
+**Worker pipeline (BullMQ) – conceptual flow:**
+
+- Location: `services/server/queues/fileProcessingQueue.js` worker code (or a helper it calls).
+- Steps inside the job processor:
+    1) Fetch and process inputs (your current LLM step).
+    2) Produce an artifact Buffer/stream (e.g., JSON, PDF, ZIP, text).
+    3) Upload artifact to S3.
+    4) Persist S3 metadata to DB.
+    5) Return job result including DB record ID and S3 key.
+
+Example skeleton for the S3 part (SDK v2, consistent with your `upload.js`):
+
+```js
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION || 'us-east-1',
+});
+
+async function uploadArtifactToS3({ bugReportId, bodyBuffer, contentType = 'application/json' }) {
+  const bucket = process.env.AWS_S3_BUCKET_NAME;
+  const prefix = process.env.AWS_S3_PREFIX || 'bug-reports';
+  const key = `${prefix}/${bugReportId}/artifacts/${Date.now()}-${Math.round(Math.random() * 1e9)}.json`;
+
+  const params = {
+    Bucket: bucket,
+    Key: key,
+    Body: bodyBuffer,           // or a stream for large artifacts
+    ContentType: contentType,
+    // Server-side encryption (optional)
+    // ServerSideEncryption: 'AES256' or 'aws:kms',
+    // SSEKMSKeyId: process.env.AWS_S3_KMS_KEY_ID,
+  };
+
+  const result = await s3.upload(params).promise(); // returns ETag, Location, Bucket, Key
+  return { bucket, key, etag: result.ETag, location: result.Location };
+}
+```
+
+After upload, save metadata:
+
+```js
+// Example with knex
+await knex('llm_outputs').insert({
+  bug_report_id: bugReportId,
+  s3_bucket: bucket,
+  s3_key: key,
+  content_type: contentType,
+  size_bytes: bodyBuffer.length,
+  etag,
+  created_at: new Date(),
+  // add model info, prompt hash, etc. if desired
+});
+```
+
+Return job result:
+
+```js
+return {
+  bugReportId,
+  artifact: { bucket, key, contentType, etag },
+  completedAt: new Date().toISOString()
+};
+```
+
+### API surfacing
+
+- Write an endpoint to fetch artifact metadata for a bug report (reads DB).
+- For downloading, generate a presigned URL at request time instead of storing a public URL:
+
+```js
+const url = s3.getSignedUrl('getObject', {
+  Bucket: bucket,
+  Key: key,
+  Expires: 60 * 10, // 10 minutes
+});
+```
+
+- Store `bucket` and `key` in the DB; generate presigned URLs when clients need the file.
+
+### Queue input/output contract
+
+- When enqueuing (`bugController.createWithUpload`), include `bugReportId` (and any initial S3 keys or local paths if needed).
+- The worker returns `artifact` metadata; you can expose a “job status” endpoint or update a DB row the API can read.
+
+### Docker and environment
+
+- Ensure worker container has AWS env vars:
+    - In `docker-compose.yml` and `docker-compose.prod.yml`, add `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_S3_BUCKET_NAME` (and optional prefix/KMS).
+- No port exposure needed for S3; outbound HTTPS must be allowed.
+
+### Naming and storage conventions
+
+- Use a deterministic prefix: `bug-reports/{bugReportId}/artifacts/{jobId or timestamp}.ext`.
+- Set `ContentType` appropriately (application/json, text/plain, application/pdf, etc.).
+- For large artifacts, prefer streams to avoid large memory usage.
+- Consider `ContentDisposition: 'inline'` for previewable types.
+
+### Security and IAM
+
+- **Least privilege** IAM policy: allow only `s3:PutObject`, `s3:GetObject` (and optionally `s3:AbortMultipartUpload`, `s3:ListBucket` for diagnostics).
+- Enable SSE-S3 or SSE-KMS for encryption at rest.
+- Do not store permanent public URLs; prefer presigned URLs.
+
+### Error handling and retries
+
+- Wrap S3 upload in try/catch; fail the job if upload fails so BullMQ retries (you already have backoff).
+- Consider idempotency: if artifacts may be reprocessed, include a hash (e.g., of content) in the key to avoid duplicates or check for object existence before writing (or enable versioning).
+
+### Optional: Local development with LocalStack
+
+- If you want local S3 without AWS:
+    - Add LocalStack to `docker-compose` with `SERVICES=s3`.
+    - Configure SDK with a custom endpoint (`s3 = new AWS.S3({ endpoint, s3ForcePathStyle: true })`).
+    - Create the bucket in init.
+
+### Minimal checklist
+
+- Add DB migration for artifact metadata fields.
+- In worker:
+    - After LLM step, build artifact buffer/stream.
+    - Upload to S3; capture bucket, key, etag, size, contentType.
+    - Persist to DB.
+    - Return artifact metadata in job result.
+- Add API endpoints to read artifact metadata and generate presigned URLs.
+- Add AWS env vars to worker and server container configs.
+
+<br>
+
+- Use a dedicated artifacts table, then trigger LLM processing off those artifacts.
+
+Schema design (minimum)
+- artifacts
+  - id (pk)
+  - bug_report_id (fk → bug_reports.id, on delete cascade)
+  - uploader_user_id (fk → users.id, nullable)
+  - s3_bucket (text) – required
+  - s3_key (text) – required
+  - content_type (text)
+  - size_bytes (int)
+  - etag (text)
+  - checksum (text, optional)
+  - status (text: 'uploaded' | 'processing' | 'processed' | 'failed', default 'uploaded')
+  - metadata (jsonb, optional: exif, lines, etc.)
+  - processing_job_id (text, text, optional)
+  - uploaded_at (timestamp, default now)
+  - processed_at (timestamp, nullable)
+  - Indexes: bug_report_id, uploaded_at; unique(bug_report_id, s3_key) for de-dup
+- llm_outputs
+  - keep as is (bug_report_id, model_name, output_type, output_text, timestamps)
+- llm_output_artifacts (link table so one LLM output can relate to many artifacts)
+  - id (pk)
+  - llm_output_id (fk → llm_outputs.id, on delete cascade)
+  - artifact_id (fk → artifacts.id, on delete cascade)
+  - Unique: (llm_output_id, artifact_id)
+
+End-to-end workflow
+- Upload path (server/API)
+  - Receive files
+  - Upload to S3 first (multer-s3 or manual SDK)
+  - Create one artifacts row per uploaded file using S3 metadata (bucket, key, contentType, size, etag)
+  - Enqueue a BullMQ job with { bugReportId, artifactIds } (only IDs, not blobs)
+- Worker (BullMQ)
+  - status → set artifacts.status = 'processing'
+  - For each artifactId:
+    - Read S3 metadata from DB, generate a presigned URL or stream from S3
+    - Load/parse content as needed
+  - Run the LLM over the set of artifacts (aggregate or per-file)
+  - Save an llm_outputs row (output_type, model_name, output_text)
+  - Insert rows in llm_output_artifacts linking the new llm_outputs.id to all artifactIds
+  - Mark artifacts.status = 'processed', set processed_at, and store processing_job_id
+  - If the LLM generates a new file (derived artifact), upload it to S3 and insert a new artifacts row of type “derived”
+- Retrieval (API)
+  - GET /api/bugs/:bugId/artifacts → list artifacts with S3 bucket/key (no public URL)
+  - GET /api/bugs/:bugId/llm-outputs → show outputs and linked artifacts
+  - For download, generate a presigned URL at request time using bucket/key (do not store permanent URLs)
+
+S3/naming
+- Key convention: bug-reports/{bugReportId}/artifacts/{uuid-or-timestamp}-{originalName}
+- Set ContentType; optionally ContentDisposition inline for previewable types
+- Use SSE-S3 or SSE-KMS if needed; keep IAM least-privilege
+
+Idempotency and quality
+- Deduplicate on (bug_report_id, s3_key) or (bug_report_id, etag)
+- Only enqueue after DB insert commits
+- Use BullMQ backoff/retries; on failure set artifacts.status = 'failed'
+
+Docker/infra
+- Ensure server and worker containers have AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_S3_BUCKET_NAME (and optional AWS_S3_PREFIX/KMS)
+- Worker already has Redis; no port needed for S3
+
+Why not logs or bug_history
+- logs: for raw input references only if you want to keep it; artifacts is clearer and scalable for many file types
+- bug_history: state/audit changes, not file storage
+
+Migration checklist
+- Create artifacts and llm_output_artifacts tables with FKs and indexes
+- Don’t change llm_outputs except if you want to add columns like model_name/output_type (already present)
+- Add status/processed timestamps to artifacts to manage pipeline state
+
+This gives you many-to-one artifacts per bug report, uploads first, then LLM processing, with clean linkage and retrievability.
+
+---
+
+Here are two solid ways to “upload to S3 first” before any processing. Pick one based on your UX and infra preferences.
+
+### Option A — Server streams uploads directly to S3 (what you’re already close to)
+- Use `multer-s3` on the upload endpoint so files stream straight to S3 during the request.
+- On success, persist an `artifacts` row per file using `file.bucket`, `file.key`, `file.mimetype`, `file.size`, `file.etag` (if available), then enqueue the BullMQ job with the new artifact IDs.
+- If DB insert fails after S3 succeeds, optionally delete the S3 object(s) to keep things tidy.
+
+Minimal flow:
+- Route: `POST /api/bugs` with `upload.array('files')` (you already have this)
+- Controller:
+  - Create `bug_report`
+  - For each `req.files[]`, insert `artifacts` row using S3 info
+  - Enqueue `enqueueFileProcessingJob(bugReport.id, artifactIds)`
+- Worker:
+  - Loads artifacts by ID, marks status=processing → processed, runs LLM after reading from S3
+
+Key details:
+- Use consistent key pattern: `bug-reports/{bugId}/artifacts/{timestamp}-{rand}-{originalName}`
+- Store: `s3_bucket`, `s3_key`, `content_type`, `size_bytes`, `etag`, `status=uploaded`
+- Use SSE: `ServerSideEncryption: 'AES256'` or KMS if needed
+- Validate file types/sizes in `multer-s3` config
+
+This approach is already implemented in your codepath with `upload.array('files')` + artifact inserts.
+
+### Option B — Client uploads directly to S3 (most scalable) 
+Upload literally happens “first” from the browser to S3. Your server never handles the file bytes.
+
+- Step 1: Client requests a presigned upload
+  - Backend endpoint generates a presigned URL (or POST policy) for each file using AWS SDK
+  - Return `{ bucket, key, url, fields }`
+- Step 2: Client uploads file directly to S3 using the presigned data
+- Step 3: Client notifies backend upload success
+  - Call your API with `{ bugReportId, bucket, key, contentType, size, etag }`
+  - Backend creates `artifacts` rows and enqueues job with those artifact IDs
+
+Benefits:
+- No server bandwidth/timeout issues
+- Cleaner separation (upload → confirm → process)
+- You can retry/recover client uploads easily
+
+Backend snippets (sketches):
+
+- Generate presigned URL (PUT style):
+```js
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3({ region: process.env.AWS_REGION });
+
+function finalKey(bugId, originalName) {
+  const ts = Date.now();
+  const rnd = Math.round(Math.random() * 1e9);
+  return `bug-reports/${bugId}/artifacts/${ts}-${rnd}-${originalName}`;
+}
+
+app.post('/api/bugs/:bugId/presign', jwtAuth, async (req, res) => {
+  const { bugId } = req.params;
+  const { filename, contentType } = req.body;
+  // auth: verify user is in the bug’s team; verify bug exists
+
+  const key = finalKey(bugId, filename);
+  const url = s3.getSignedUrl('putObject', {
+    Bucket: process.env.AWS_S3_BUCKET_NAME,
+    Key: key,
+    ContentType: contentType,
+    Expires: 60,
+    // ServerSideEncryption: 'AES256',
+  });
+  res.json({ bucket: process.env.AWS_S3_BUCKET_NAME, key, url, headers: { 'Content-Type': contentType } });
+});
+```
+
+- Confirm upload (create artifacts rows then enqueue):
+```js
+// body: { bugReportId, uploads: [{ bucket, key, contentType, sizeBytes, etag }] }
+for (const u of uploads) {
+  const artifact = await Artifact.createForBug({
+    bugReportId,
+    s3Bucket: u.bucket,
+    s3Key: u.key,
+    contentType: u.contentType,
+    sizeBytes: u.sizeBytes,
+    etag: u.etag,
+    status: 'uploaded',
+  });
+  artifactIds.push(artifact.id);
+}
+await enqueueFileProcessingJob(bugReportId, artifactIds);
+```
+
+Notes:
+- For browsers, use a POST policy (multipart form) if you need constraints and metadata; PUT presign is fine for simple cases.
+- You can HEAD the S3 object to retrieve `ContentLength` and `ETag` if the client doesn’t send them.
+
+### Reliability and consistency
+- Use a transaction when creating `bug_report` + `artifacts` together if they’re part of one flow.
+- If any insert fails, delete the uploaded S3 objects (server-side) or mark artifacts as `failed`.
+- De-duplicate artifacts: unique `(bug_report_id, s3_key)` or use `etag` if stable.
+
+### Security/IAM
+- Least-privilege for S3: `s3:PutObject`, `s3:GetObject`, `s3:HeadObject`, optionally `s3:AbortMultipartUpload`, scoped to your bucket/prefix.
+- Block public access at the bucket level; serve with presigned URLs.
+- Consider SSE-KMS for compliance.
+
+### In your current codebase
+- Option A is already in place: `upload.array('files')` plus saving artifacts and then `enqueueFileProcessingJob(bugReport.id, artifactIds)`. That’s “upload to S3 first, then process.”
+- If you prefer Option B (client direct), add:
+  - `POST /api/bugs/:bugId/presign` → returns presigned upload(s)
+  - `POST /api/bugs/:bugId/confirm-uploads` → inserts artifacts and enqueues processing
+
+Either way, the invariant is the same:
+- S3 upload completes
+- Artifact rows are created (bucket/key/etc.) with `status='uploaded'`
+- BullMQ worker processes artifacts by ID and runs LLM afterwards
+
+---
+
+Here’s a minimal, working boilerplate to stream uploads directly to S3, persist artifacts, and enqueue processing.
+
+Install
+```bash
+npm install aws-sdk multer multer-s3
+```
+
+Env (add to your .env)
+```bash
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_REGION=us-east-1
+AWS_S3_BUCKET_NAME=your-bucket
+```
+
+S3 client (e.g., services/server/lib/s3.js)
+```js
+const AWS = require('aws-sdk');
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION || 'us-east-1',
+});
+
+module.exports = s3;
+```
+
+Multer S3 storage (services/server/middleware/upload.js)
+```js
+const multer = require('multer');
+const multerS3 = require('multer-s3');
+const s3 = require('../lib/s3');
+
+function keyFor(bugReportId, originalName) {
+  const ts = Date.now();
+  const rnd = Math.round(Math.random() * 1e9);
+  return `bug-reports/{bugReportId}/artifacts/${ts}-${rnd}-${originalName}`;
+}
+
+// This storage requires a bugReportId to be present on req for key().
+// If you create the bug first in the controller, you can set req.bugReportId before multer runs.
+// Alternatively, upload to a temp prefix first then rename/copy later.
+const uploadToTemp = multer({
+  storage: multerS3({
+    s3,
+    bucket: process.env.AWS_S3_BUCKET_NAME,
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    metadata: (req, file, cb) => cb(null, { fieldName: file.fieldname }),
+    key: (req, file, cb) => {
+      // temp location until we have the bug id
+      const ts = Date.now();
+      const rnd = Math.round(Math.random() * 1e9);
+      cb(null, `temp/${ts}-${rnd}-${file.originalname}`);
+    },
+  }),
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
+  fileFilter: (req, file, cb) => {
+    // allow common types
+    cb(null, true);
+  },
+});
+
+module.exports = { uploadToTemp, keyFor, s3 };
+```
+
+Controller (services/server/controllers/bugController.js)
+```js
+const BugReport = require('../models/BugReport');
+const Team = require('../models/Team');
+const Artifact = require('../models/Artifact');
+const { enqueueFileProcessingJob } = require('../queues/fileProcessingQueue');
+const { s3, keyFor } = require('../middleware/upload');
+
+exports.createWithUpload = async (req, res) => {
+  try {
+    const { teamId, title, description, source } = req.body;
+    if (!teamId || !title) return res.status(400).json({ message: 'Team ID and title are required' });
+
+    // auth: must be team member
+    const teamMembers = await Team.getMembers(teamId);
+    const isMember = teamMembers.some(m => m.user_id === req.user.id);
+    if (!isMember) return res.status(403).json({ message: 'Forbidden' });
+
+    // 1) create bug report first
+    const bugReport = await BugReport.create({
+      teamId,
+      reportedBy: req.user.id,
+      source: source || 'unknown',
+      title,
+      desc: description || '',
+      status: 'open',
+    });
+
+    const uploaded = req.files || [];
+    if (uploaded.length === 0) {
+      return res.status(201).json({ message: 'Bug report created', bugReport, artifacts: [] });
+    }
+
+    // 2) move temp uploads to final S3 keys under bug-reports/{bugId}/...
+    const moveResults = await Promise.all(uploaded.map(async (file) => {
+      const finalKey = keyFor(bugReport.id, file.originalname);
+      // CopyObject then DeleteObject (S3 cannot rename)
+      await s3.copyObject({
+        Bucket: process.env.AWS_S3_BUCKET_NAME,
+        CopySource: `/${file.bucket}/${file.key}`,
+        Key: finalKey,
+        // ServerSideEncryption: 'AES256',
+      }).promise();
+      await s3.deleteObject({ Bucket: file.bucket, Key: file.key }).promise();
+      return { ...file, finalKey };
+    }));
+
+    // 3) persist artifacts
+    const artifacts = [];
+    for (const m of moveResults) {
+      const artifact = await Artifact.createForBug({
+        bugReportId: bugReport.id,
+        uploaderUserId: req.user.id,
+        s3Bucket: m.bucket,
+        s3Key: m.finalKey,
+        contentType: m.mimetype,
+        sizeBytes: m.size,
+        etag: m.etag || null,
+        status: 'uploaded',
+        metadata: { originalname: m.originalname },
+      });
+      artifacts.push(artifact);
+    }
+
+    // 4) enqueue processing by artifact IDs
+    const artifactIds = artifacts.map(a => a.id);
+    const jobId = await enqueueFileProcessingJob(bugReport.id, artifactIds);
+
+    res.status(201).json({
+      message: 'Bug report created',
+      bugReport,
+      artifacts,
+      jobId,
+    });
+  } catch (err) {
+    console.error('createWithUpload error:', err);
+    // optional: attempt cleanup of temp objects
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+```
+
+Route (services/server/index.js)
+```js
+const { uploadToTemp } = require('./middleware/upload');
+// ...
+app.post('/api/bugs', jwtAuthMiddleware, uploadToTemp.array('files'), bugController.createWithUpload);
+```
+
+Notes
+- This streams upload directly to S3 (no local disk). Files land in a temp prefix first and are moved under the bug’s final key after the bug is created.
+- If you prefer, you can compute the final key before multer runs (by parsing a `bugReportId` in the form or by creating the bug in a separate first request), and skip the copy/delete step.
+- For cleanup on DB failure, track uploaded keys and delete them via `s3.deleteObject` before returning an error.
+
+---
+
+Why are file put in a temp prefix first? 
+
+---
+
+- Consistent final keys need a bugReportId: You don’t have the bug ID until after you create the bug. Uploading to a temp prefix avoids guessing the final path. After the bug exists, you “promote” by copy+delete to bug-reports/{bugId}/...
+- Atomicity/rollback: If DB insert fails after upload, you can safely delete temp objects. Only promote to final location after the DB commit succeeds.
+- Prevents collisions and spoofing: Clients can’t write directly into authoritative paths. Temp keys are random; promotion is controlled server-side.
+- Validation before promotion: You can run scans/validations (type, size, malware) against temp objects and only promote “clean” files.
+- Idempotency/retries: If an API step fails, you can retry promotion without worrying about overwriting finalized keys.
+- Clear lifecycle: temp → validated/committed → promoted. Makes cleanup jobs easy (auto-delete old temp objects).
+
+---
+
+How would alternative look like if the clients upload directly to the S3?
+
+---
+
+Here’s the “client uploads directly to S3” pattern, end-to-end.
+
+### Flow
+1) Client asks API for an upload grant  
+2) Server returns presigned info (PUT or multipart POST) with final S3 key under `bug-reports/{bugId}/artifacts/...`  
+3) Client uploads file to S3 using that presigned data (no server bytes)  
+4) Client notifies API to “confirm” the upload → server validates object exists (HEAD), creates `artifacts` rows, enqueues processing
+
+### Server endpoints
+
+- Presign (one per file)
+```http
+POST /api/bugs/:bugId/presign
+Body: { filename, contentType }
+Res: {
+  bucket, key,
+  // For PUT style:
+  url, headers: { "Content-Type": "...", ... }
+  // or for POST style:
+  url, fields: { ...policyFields }
+}
+```
+
+- Confirm
+```http
+POST /api/bugs/:bugId/confirm-uploads
+Body: {
+  uploads: [
+    {

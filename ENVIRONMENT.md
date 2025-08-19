@@ -50,6 +50,19 @@ POSTGRES_PASSWORD=your-secure-db-password
 POSTGRES_PORT=5432  # External port mapping
 ```
 
+### Redis Configuration (BullMQ)
+```bash
+REDIS_HOST=redis  # Docker service name
+REDIS_PORT=6379
+REDIS_PASSWORD=your-redis-password  # Optional
+```
+
+### Worker Configuration
+```bash
+ENABLE_WORKER_HEALTH_CHECK=true  # Optional health check endpoint
+WORKER_HEALTH_PORT=3002  # Health check port
+```
+
 ## Security Notes
 
 1. **Never commit actual secrets to version control**
@@ -101,9 +114,12 @@ node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"
 # Development with hot reloading
 docker-compose up
 
+# Services running:
 # Frontend: http://localhost:5173 (Vite dev server)
 # Backend API: http://localhost:3001
 # Database: localhost:5432
+# Redis: localhost:6379
+# Worker: Background service (no exposed port)
 ```
 
 ### Production Setup (Static Build Served by Backend)
@@ -200,4 +216,57 @@ curl http://localhost:5173
 docker-compose ps
 docker-compose logs frontend
 docker-compose logs server
+docker-compose logs worker
+docker-compose logs redis
 ```
+
+## BullMQ Queue System
+
+### Services Architecture
+- **Server**: Handles HTTP requests and enqueues jobs
+- **Worker**: Processes background jobs (file processing, etc.)
+- **Redis**: Message broker and job storage
+- **Queue Types**: File processing, email notifications, data analysis
+
+### Queue Operations
+
+#### Enqueue Jobs (Server)
+```javascript
+const { enqueueFileProcessingJob } = require('./queues/fileProcessingQueue');
+
+// Add job to queue
+const jobId = await enqueueFileProcessingJob(bugReportId, files);
+```
+
+#### Monitor Jobs
+```bash
+# Check worker logs
+docker-compose logs -f worker
+
+# Check Redis connection
+docker-compose exec redis redis-cli ping
+
+# View all services
+docker-compose ps
+```
+
+### Queue Management Commands
+
+```bash
+# Start only specific services
+docker-compose up postgres redis worker
+
+# Scale workers
+docker-compose up --scale worker=3
+
+# Check queue status (if Bull Board is added)
+# http://localhost:3001/admin/queues
+```
+
+### Production Considerations
+
+1. **Worker Scaling**: Use multiple worker instances for high throughput
+2. **Redis Persistence**: Configured with AOF persistence
+3. **Job Retention**: Automatically cleans up old jobs (configurable)
+4. **Error Handling**: Failed jobs are retried with exponential backoff
+5. **Monitoring**: Add Bull Board for queue visualization
